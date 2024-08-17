@@ -112,17 +112,66 @@ public class Shape {
 
     private void checkLine() {
         int bottomLine = board.getBoard().length - 1;
-        for(int topLine = board.getBoard().length - 1; topLine > 0; topLine--) {
+        for (int topLine = board.getBoard().length - 1; topLine > 0; topLine--) {
             int count = 0;
-            for (int col = 0; col < board.getBoard()[0].length; col++ ) {
-                if(board.getBoard()[topLine][col] != null) {
+            for (int col = 0; col < board.getBoard()[0].length; col++) {
+                if (board.getBoard()[topLine][col] != null) {
                     count++;
                 }
                 board.getBoard()[bottomLine][col] = board.getBoard()[topLine][col];
             }
-            if(count < board.getBoard()[0].length) {
+
+            // Increment score only if a full line is cleared
+            if (count == board.getBoard()[0].length) {
+                board.incrementScore(); // Increment score when a line is cleared
+            } else {
                 bottomLine--;
             }
+        }
+    }
+
+
+
+    public void rotateShape() {
+        int[][] rotatedShape = transposeMatrix(coords);
+        reverseRows(rotatedShape);
+//check for right side and bottom
+        if((x + rotatedShape[0].length > Board.BOARD_WIDTH) || (y + rotatedShape.length > 20)) {
+            return;
+        }
+
+//        check for collision with other shapes before rotate
+        for(int row = 0; row < rotatedShape.length; row++) {
+            for(int col = 0; col < rotatedShape[row].length; col++) {
+                if(rotatedShape[row][col] != 0) {
+                    if(board.getBoard()[y + row][x + col] != null) {
+                        return;
+                    }
+                }
+            }
+        }
+        coords = rotatedShape;
+
+    }
+
+    private int[][] transposeMatrix(int[][] matrix) {
+        int[][] temp = new int[matrix[0].length][matrix.length];
+        for(int row = 0; row < matrix.length; row++) {
+            for(int col = 0; col < matrix[0].length; col++) {
+                temp[col][row] = matrix[row][col];
+            }
+        }
+        return temp;
+
+
+    }
+
+    private void reverseRows(int[][] matrix) {
+        int middle = matrix.length / 2;
+        for(int row = 0; row < middle; row++) {
+            int[] temp = matrix[row];
+            matrix[row] = matrix[matrix.length - row - 1];
+            matrix[matrix.length - row - 1] = temp;
         }
 
     }
@@ -140,6 +189,10 @@ public class Shape {
         }
     }
 
+    public int[][] getCoords() {
+        return coords;
+    }
+
     public void speedUp() {
         delayTimeForMovement = fast;
     }
@@ -155,4 +208,14 @@ public class Shape {
     public void moveLeft() {
         deltaX = -1;
     }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+
 }
